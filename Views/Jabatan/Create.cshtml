@@ -13,13 +13,13 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Nama_Jabatan" class="control-label"></label>
-                @Html.TextBoxFor(x=>x.Nama_Jabatan, new {class="form-control"})
+                <label asp-for="Nama_Jabatan" class="control-label">Nama Jabatan</label>
+               @Html.TextBoxFor(x=>x.Nama_Jabatan, new{ @class="form-control" })
                 <span asp-validation-for="Nama_Jabatan" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Gaji_Pokok" class="control-label"></label>
-                <input asp-for="Gaji_Pokok" class="form-control" />
+                @Html.TextBoxFor(x => x.Gaji_Pokok, new { @class = "form-control" })
                 <span asp-validation-for="Gaji_Pokok" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -35,4 +35,32 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $("#createForm").submit(function(e) {
+            e.preventDefault(); // cegah submit biasa
+
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: token, // wajib
+                    Nama_Jabatan: $("#Nama_Jabatan").val(),
+                    Gaji_Pokok: $("#Gaji_Pokok").val()
+                },
+                success: function(response){
+                    // kalau controller redirect, AJAX tidak langsung redirect
+                    // bisa tampil alert / redirect manual
+                    alert("Data berhasil disimpan!");
+                    window.location.href = "/Jabatan/Index"; // redirect manual
+                },
+                error: function(xhr){
+                    alert("Terjadi kesalahan: " + xhr.statusText);
+                }
+            });
+        });
+    </script>
 }

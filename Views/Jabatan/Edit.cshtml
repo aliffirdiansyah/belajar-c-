@@ -35,5 +35,40 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $("#editForm").submit(function(e) {
+                e.preventDefault(); // cegah submit biasa
+
+                var form = $(this);
+                var token = $('input[name="__RequestVerificationToken"]', form).val();
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: {
+                        __RequestVerificationToken: token,
+                        Id: $("#Id").val(),
+                        Nama_Jabatan: $("#Nama_Jabatan").val(),
+                        Gaji_Pokok: $("#Gaji_Pokok").val()
+                    },
+                    success: function(response){
+                        // Jika controller redirect, AJAX tidak otomatis redirect
+                        // Jadi kita redirect manual
+                        alert("Data berhasil diperbarui!");
+                        window.location.href = "/Jabatan/Index";
+                    },
+                    error: function(xhr){
+                        alert("Terjadi kesalahan: " + xhr.statusText);
+                    }
+                });
+            });
+        });
+    </script>
 }
+
