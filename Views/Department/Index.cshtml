@@ -1,0 +1,50 @@
+@model IEnumerable<hr.Models.Department>
+
+@{
+    ViewData["Title"] = "Department";
+}
+
+<h1>Department</h1>
+@if (User.IsInRole("Admin"))
+        {
+ <p>
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+    </p>
+        }
+<table id="departmentTable" class="table table-bordered table-striped datatable">
+    <thead class="table-dark">
+        <tr>
+            <th>
+                No.
+            </th>
+            <th>
+                Nama Department
+            </th>
+            @if (User.IsInRole("Admin"))
+    {
+             <th style="width: 180px;">Aksi</th>
+    }
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nama_Department)
+            </td>
+    @if (User.IsInRole("Admin"))
+    {
+             <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"
+                           onclick="return confirm('Yakin mau hapus user ini?');">Delete</a>
+                    </td>
+    }
+        </tr>
+}
+    </tbody>
+</table>

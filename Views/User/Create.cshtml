@@ -1,0 +1,59 @@
+@model hr.ViewModels.UserCreateViewModel
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<h1>Create User</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="form-label">Email</label>
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Nama_Lengkap" class="form-label">Nama Lengkap</label>
+                <input asp-for="Nama_Lengkap" class="form-control" />
+                <span asp-validation-for="Nama_Lengkap" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Password" class="form-label">Password</label>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Id_Jabatan" class="control-label">Jabatan</label>
+                <select asp-for="Id_Jabatan" class="form-control" asp-items="ViewBag.JabatanId">
+                    <option value="">-- Pilih Jabatan --</option>
+                </select>
+                <span asp-validation-for="Id_Jabatan" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Id_Department" class="control-label">Department</label>
+                <select asp-for="Id_Department" class="form-control" asp-items="ViewBag.DepartmentId">
+                    <option value="">-- Pilih Department --</option>
+                </select>
+                <span asp-validation-for="Id_Department" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

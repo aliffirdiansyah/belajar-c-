@@ -1,0 +1,45 @@
+@model hr.Models.JabatanVM.Index
+
+@{
+    ViewData["Title"] = "Jabatan";
+}
+
+<h1>Jabatan</h1>
+@if (User.IsInRole("Admin"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create New</a>
+    </p>
+}
+<table id="jabatanTable" class="table table-bordered table-striped datatable">
+    <thead class="table-dark">
+        <tr>
+            <th>No.</th>
+            <th>Nama Jabatan</th>
+            <th>Gaji Pokok</th>
+            @if (User.IsInRole("Admin"))
+            {
+                 <th style="width: 180px;">Aksi</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.JabatanlIST)
+        {
+            <tr>
+                <td></td>
+                <td>@item.Nama_Jabatan</td>
+                <td>Rp. @item.Gaji_Pokok.ToString("N0")</td>
+                @if (User.IsInRole("Admin"))
+                {
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"
+                           onclick="return confirm('Yakin mau hapus user ini?');">Delete</a>
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>

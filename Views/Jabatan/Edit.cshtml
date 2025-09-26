@@ -1,0 +1,39 @@
+@model hr.Models.Jabatan
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Jabatan</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label asp-for="Nama_Jabatan" class="control-label"></label>
+                <input asp-for="Nama_Jabatan" class="form-control" />
+                <span asp-validation-for="Nama_Jabatan" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Gaji_Pokok" class="control-label"></label>
+                <input asp-for="Gaji_Pokok" class="form-control" />
+                <span asp-validation-for="Gaji_Pokok" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
