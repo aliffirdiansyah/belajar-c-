@@ -32,27 +32,30 @@ namespace hr.Controllers
                 j.Id = item.Id;
                 j.Nama_Jabatan = item.Nama_Jabatan;
                 j.Gaji_Pokok = item.Gaji_Pokok;
-                Models.JabatanlIST.Add(j);
+                Models.JabatanList.Add(j);
             }
             return View(Models);
         }
 
         // GET: Jabatan/Details/5
+
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var jabatan = await _context.Jabatans
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (jabatan == null)
-            {
-                return NotFound();
-            }
 
-            return View(jabatan);
+            if (jabatan == null) return NotFound();
+
+            var model = new JabatanVM.Details
+            {
+                Id = jabatan.Id,
+                Nama_Jabatan = jabatan.Nama_Jabatan,
+                Gaji_Pokok = jabatan.Gaji_Pokok
+            };
+
+            return View(model);
         }
 
         // GET: Jabatan/Create
@@ -133,34 +136,44 @@ namespace hr.Controllers
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var jabatan = await _context.Jabatans
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var jabatan = await _context.Jabatans.FindAsync(id);
             if (jabatan == null)
-            {
                 return NotFound();
-            }
 
-            return View(jabatan);
+            var vm = new JabatanVM.Delete
+            {
+                Id = jabatan.Id,
+                Nama_Jabatan = jabatan.Nama_Jabatan,
+                Gaji_Pokok = jabatan.Gaji_Pokok
+            };
+
+            return View(vm);
         }
 
         // POST: Jabatan/Delete/5
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var jabatan = await _context.Jabatans.FindAsync(id);
-            if (jabatan != null)
-            {
-                _context.Jabatans.Remove(jabatan);
-            }
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> DeleteConfirmed(int id)
+{
+    var jabatan = await _context.Jabatans.FindAsync(id);
+    if (jabatan == null)
+        return NotFound();
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
+    try
+    {
+        _context.Jabatans.Remove(jabatan);
+        await _context.SaveChangesAsync();
+        TempData["SuccessMessage"] = "Jabatan berhasil dihapus.";
+    }
+    catch (DbUpdateException)
+    {
+        TempData["ErrorMessage"] = "Tidak bisa menghapus jabatan ini karena masih digunakan.";
+    }
+
+    return RedirectToAction(nameof(Index));
+}
 
         private bool JabatanExists(int id)
         {

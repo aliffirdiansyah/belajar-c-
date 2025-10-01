@@ -1,1 +1,83 @@
-﻿<h2>Welcome, @User.Identity.Name</h2>
+﻿@{
+    ViewData["Title"] = "Dashboard Hris";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <canvas id="myChartDepartment"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <canvas id="myChartJabatan"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+               var labelsDepartment = ['Jumlah Pegawai'];
+        var dataDepartment = @Html.Raw(Json.Serialize(ViewBag.DataDepartment));
+        var namesDepartment = @Html.Raw(Json.Serialize(ViewBag.LabelsDepartment));
+
+        var deptDatasets = namesDepartment.map((name, i) => ({
+            label: name,
+            data: [dataDepartment[i]],
+            backgroundColor: `hsl(${i * 60}, 70%, 60%)`,
+            borderWidth: 1
+        }));
+
+        var ctxDept = document.getElementById('myChartDepartment').getContext('2d');
+        new Chart(ctxDept, {
+            type: 'bar',
+            data: {
+                labels: labelsDepartment,
+                datasets: deptDatasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: 'Jumlah Pegawai Per Department' }
+                },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+
+                var labelsJabatan = ['Jumlah Pegawai'];
+        var dataJabatan = @Html.Raw(Json.Serialize(ViewBag.DataJabatan));
+        var namesJabatan = @Html.Raw(Json.Serialize(ViewBag.LabelsJabatan));
+
+        var jabatanDatasets = namesJabatan.map((name, i) => ({
+            label: name,
+            data: [dataJabatan[i]],
+            backgroundColor: `hsl(${i * 40}, 70%, 60%)`,
+            borderWidth: 1
+        }));
+
+        var ctxJab = document.getElementById('myChartJabatan').getContext('2d');
+        new Chart(ctxJab, {
+            type: 'bar',
+            data: {
+                labels: labelsJabatan,
+                datasets: jabatanDatasets
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: { display: true, text: 'Jumlah Pegawai Per Jabatan' }
+                },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+
+    </script>
+}

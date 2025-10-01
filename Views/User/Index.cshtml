@@ -1,55 +1,58 @@
-@model IEnumerable<hr.Models.User>
+@model hr.Models.UserVM.Index
 
 @{
-    ViewData["Title"] = "User List";
+    ViewData["Title"] = "Pegawai List";
 }
 
-<h1>User List</h1>
+<h1>Pegawai List</h1>
 <hr />
+
 @if (User.IsInRole("Admin"))
-        {
-<p>
-    <a asp-action="Create" class="btn btn-primary">+ Add User</a>
-</p>
-        }
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">+ Add User</a>
+    </p>
+}
 
 <table id="userTable" class="table table-bordered table-striped datatable">
     <thead class="table-dark">
         <tr>
-            <th>No</th>
+            <th style="width: 50px;">No</th>
             <th>Email</th>
             <th>Nama Lengkap</th>
             <th>Jabatan</th>
             <th>Department</th>
             <th>Role</th>
             @if (User.IsInRole("Admin"))
-{
-            <th style="width: 180px;">Aksi</th>
-}
+            {
+                <th style="width: 220px;">Aksi</th>
+            }
         </tr>
     </thead>
     <tbody>
-        @if (Model != null && Model.Any())
+        @if (Model.UserList != null && Model.UserList.Any())
         {
-            int no = 1;
-            foreach (var item in Model)
+            foreach (var item in Model.UserList)
             {
                 <tr>
-                    <td></td>
+                    <td></td> <!-- nanti auto-number dari DataTables -->
                     <td>@item.Email</td>
                     <td>@item.Nama_Lengkap</td>
-                    <td>@item.Jabatan?.Nama_Jabatan</td>
-                    <td>@item.Department?.Nama_Department</td>
+                    <td>@item.Nama_Jabatan</td>
+                    <td>@item.Nama_Department</td>
                     <td>@item.Role</td>
-        @if (User.IsInRole("Admin"))
-        {
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
-                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger"
-                           onclick="return confirm('Yakin mau hapus user ini?');">Delete</a>
-                    </td>
-        }
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id"
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('Yakin mau hapus user ini?');">
+                                Delete
+                            </a>
+                        </td>
+                    }
                 </tr>
             }
         }
@@ -61,3 +64,11 @@
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            initDataTable("#userTable", 1); // urut default by Email
+        });
+    </script>
+}

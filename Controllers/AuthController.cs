@@ -50,7 +50,7 @@ namespace hr.Controllers
                     new ClaimsPrincipal(claimsIdentity)
                 );
 
-                return RedirectToAction("Index", "Home"); // ✅ masuk dashboard
+                return RedirectToAction("Index", "Home");
             }
 
             ViewBag.Error = "Email atau password salah";

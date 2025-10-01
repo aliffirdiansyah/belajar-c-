@@ -32,7 +32,7 @@ using (var scope = app.Services.CreateScope())
             Nama_Lengkap = "Administrator",
             Password = BCrypt.Net.BCrypt.HashPassword("admin123"), // ✅ hash password
             Role = "Admin",
-            Id_Department = 1, // sesuaikan kalau ada relasi
+            Id_Department = 7, // sesuaikan kalau ada relasi
             Id_Jabatan = 1     // sesuaikan kalau ada relasi
         };
 

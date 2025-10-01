@@ -1,12 +1,13 @@
 using hr.Data;
 using hr.Models;
-using hr.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace hr.Controllers
 {
+    [Authorize]
     public class UserController : Controller
     {
         private readonly AppDbContext _context;
@@ -18,18 +19,28 @@ namespace hr.Controllers
             _logger = logger;
         }
 
-        // ================== INDEX ==================
         public async Task<IActionResult> Index()
         {
-            var users = await _context.Users
+            var model = new Models.UserVM.Index();
+
+            model.UserList = await _context.Users
                 .Include(u => u.Jabatan)
                 .Include(u => u.Department)
+                .Select(u => new Models.UserVM.UserListItem
+                {
+                    Id = u.Id,
+                    Email = u.Email,
+                    Nama_Lengkap = u.Nama_Lengkap,
+                    Nama_Jabatan = u.Jabatan != null ? u.Jabatan.Nama_Jabatan : "-",
+                    Nama_Department = u.Department != null ? u.Department.Nama_Department : "-",
+                    Role = u.Role
+                })
                 .ToListAsync();
 
-            return View(users);
+            return View(model);
         }
 
-        // ================== DETAILS ==================
+
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -41,19 +52,29 @@ namespace hr.Controllers
 
             if (user == null) return NotFound();
 
-            return View(user);
+            var model = new Models.UserVM.Details
+            {
+                Id = user.Id,
+                Email = user.Email,
+                Nama_Lengkap = user.Nama_Lengkap,
+                Nama_Jabatan = user.Jabatan?.Nama_Jabatan,
+                Nama_Department = user.Department?.Nama_Department,
+                Role = user.Role
+            };
+
+            return View(model);
         }
 
-        // ================== CREATE ==================
         public IActionResult Create()
         {
+            var vm = new Models.UserVM.Create();
             LoadDropdowns();
-            return View();
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(UserCreateViewModel model)
+        public async Task<IActionResult> Create(Models.UserVM.Create vm)
         {
             if (ModelState.IsValid)
             {
@@ -61,31 +82,30 @@ namespace hr.Controllers
                 {
                     var user = new User
                     {
-                        Email = model.Email,
-                        Nama_Lengkap = model.Nama_Lengkap,
-                        Password = BCrypt.Net.BCrypt.HashPassword(model.Password),
-                        Id_Jabatan = model.Id_Jabatan,
-                        Id_Department = model.Id_Department,
+                        Email = vm.Email,
+                        Nama_Lengkap = vm.Nama_Lengkap,
+                        Password = BCrypt.Net.BCrypt.HashPassword(vm.Password),
+                        Id_Jabatan = vm.Id_Jabatan,
+                        Id_Department = vm.Id_Department,
                         Role = "User"
                     };
 
                     _context.Add(user);
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "User berhasil ditambahkan.";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error saat membuat user baru");
-                    ModelState.AddModelError(string.Empty, "Gagal menyimpan data user.");
+                    TempData["ErrorMessage"] = "Gagal menyimpan data user.";
                 }
             }
 
-            LoadDropdowns(model.Id_Jabatan, model.Id_Department);
-            return View(model);
+            LoadDropdowns(vm.Id_Jabatan, vm.Id_Department);
+            return View(vm);
         }
 
-
-        // ================== EDIT ==================
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -93,53 +113,62 @@ namespace hr.Controllers
             var user = await _context.Users.FindAsync(id);
             if (user == null) return NotFound();
 
-            var model = new UserEditViewModel
+            var vm = new Models.UserVM.Edit
             {
                 Id = user.Id,
+                Email = user.Email,
                 Nama_Lengkap = user.Nama_Lengkap,
                 Id_Jabatan = user.Id_Jabatan,
                 Id_Department = user.Id_Department
             };
 
             LoadDropdowns(user.Id_Jabatan, user.Id_Department);
-            return View(model);
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, UserEditViewModel model)
+        public async Task<IActionResult> Edit(int id, Models.UserVM.Edit vm)
         {
-            if (id != model.Id) return NotFound();
+            if (id != vm.Id)
+                return Json(new { success = false, errors = new { general = "ID tidak cocok" } });
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     var user = await _context.Users.FindAsync(id);
-                    if (user == null) return NotFound();
+                    if (user == null)
+                        return Json(new { success = false, errors = new { general = "User tidak ditemukan" } });
 
-                    // update hanya field tertentu
-                    user.Nama_Lengkap = model.Nama_Lengkap;
-                    user.Id_Jabatan = model.Id_Jabatan;
-                    user.Id_Department = model.Id_Department;
+                    user.Nama_Lengkap = vm.Nama_Lengkap;
+                    user.Id_Jabatan = vm.Id_Jabatan;
+                    user.Id_Department = vm.Id_Department;
 
                     _context.Update(user);
                     await _context.SaveChangesAsync();
 
-                    return RedirectToAction(nameof(Index));
+                    return Json(new { success = true });
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Error saat mengedit user");
-                    ModelState.AddModelError(string.Empty, "Gagal mengupdate data user.");
+                    return Json(new { success = false, errors = new { general = "Gagal menyimpan data user" } });
                 }
             }
 
-            LoadDropdowns(model.Id_Jabatan, model.Id_Department);
-            return View(model);
+            // Ambil semua error validasi dan kirim sebagai JSON
+            var errors = ModelState
+                .Where(x => x.Value.Errors.Count > 0)
+                .ToDictionary(
+                    kvp => kvp.Key,
+                    kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+                );
+
+            return Json(new { success = false, errors });
         }
 
-        // ================== DELETE ==================
+
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -151,7 +180,16 @@ namespace hr.Controllers
 
             if (user == null) return NotFound();
 
-            return View(user);
+            var vm = new Models.UserVM.Delete
+            {
+                Id = user.Id,
+                Nama_Lengkap = user.Nama_Lengkap,
+                Email = user.Email,
+                Nama_Jabatan = user.Jabatan?.Nama_Jabatan,
+                Nama_Department = user.Department?.Nama_Department
+            };
+
+            return View(vm);
         }
 
         [HttpPost, ActionName("Delete")]
@@ -159,16 +197,23 @@ namespace hr.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var user = await _context.Users.FindAsync(id);
-            if (user != null)
+            if (user == null) return NotFound();
+
+            try
             {
                 _context.Users.Remove(user);
                 await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "User berhasil dihapus.";
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Gagal menghapus user");
+                TempData["ErrorMessage"] = "Tidak bisa menghapus user ini karena masih digunakan.";
             }
 
             return RedirectToAction(nameof(Index));
         }
 
-        // ================== HELPER ==================
         private void LoadDropdowns(int? selectedJabatan = null, int? selectedDepartment = null)
         {
             ViewBag.JabatanId = new SelectList(_context.Jabatans, "Id", "Nama_Jabatan", selectedJabatan);

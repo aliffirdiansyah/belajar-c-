@@ -1,36 +1,97 @@
-@model hr.ViewModels.UserEditViewModel
+@model hr.Models.UserVM.Edit
 
 @{
     ViewData["Title"] = "Edit User";
 }
 
 <h2>Edit User</h2>
+<hr />
 
-<form asp-action="Edit" method="post">
-    <input type="hidden" asp-for="Id" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="editForm" asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
 
-    <div class="form-group">
-        <label asp-for="Nama_Lengkap" class="control-label">Nama Lengkap</label>
-        <input asp-for="Nama_Lengkap" class="form-control" />
-        <span asp-validation-for="Nama_Lengkap" class="text-danger"></span>
+            <div class="form-group mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                @Html.TextBoxFor(x => x.Email, new { @class = "form-control", id = "Email" })
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Nama_Lengkap" class="form-label"></label>
+                @Html.TextBoxFor(x => x.Nama_Lengkap, new { @class = "form-control", id = "Nama_Lengkap" })
+                <span asp-validation-for="Nama_Lengkap" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Id_Jabatan" class="form-label"></label>
+                <select asp-for="Id_Jabatan" class="form-control" asp-items="ViewBag.JabatanId">
+                    <option value="">-- Pilih Jabatan --</option>
+                </select>
+                <span asp-validation-for="Id_Jabatan" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Id_Department" class="form-label"></label>
+                <select asp-for="Id_Department" class="form-control" asp-items="ViewBag.DepartmentId">
+                    <option value="">-- Pilih Department --</option>
+                </select>
+                <span asp-validation-for="Id_Department" class="text-danger"></span>
+            </div>
+
+            <div id="formError" class="alert alert-danger d-none"></div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Simpan</button>
+                <a asp-action="Index" class="btn btn-secondary ms-2">Batal</a>
+            </div>
+        </form>
     </div>
-
-    <div class="form-group">
-        <label asp-for="Id_Jabatan" class="control-label">Jabatan Saat Ini</label>
-        <select asp-for="Id_Jabatan" class="form-control" asp-items="ViewBag.JabatanId"></select>
-        <span asp-validation-for="Id_Jabatan" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Id_Department" class="control-label">Department Saat Ini</label>
-        <select asp-for="Id_Department" class="form-control" asp-items="ViewBag.DepartmentId"></select>
-        <span asp-validation-for="Id_Department" class="text-danger"></span>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Simpan</button>
-    <a asp-action="Index" class="btn btn-secondary">Batal</a>
-</form>
+</div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("#editForm").on("submit", function (e) {
+                e.preventDefault();
+
+                var form = $(this);
+                var errorDiv = $("#formError");
+                errorDiv.addClass("d-none").html("");
+
+                $.ajax({
+                    url: form.attr("action"), // /User/Edit
+                    type: "POST",
+                    data: form.serialize(),
+                    success: function (response) {
+                        // jika server mengembalikan redirect, anggap berhasil
+                        if (response.success) {
+                            alert("Data berhasil diperbarui!");
+                            window.location.href = "/User/Index";
+                        } else if (response.errors) {
+                            errorDiv.removeClass("d-none");
+                            var errors = "";
+                            $.each(response.errors, function (key, value) {
+                                errors += value + "<br/>";
+                            });
+                            errorDiv.html(errors);
+                        } else {
+                            // fallback
+                            alert("Data berhasil diperbarui!");
+                            window.location.href = "/User/Index";
+                        }
+                    },
+                    error: function (xhr) {
+                        errorDiv.removeClass("d-none");
+                        errorDiv.html("Terjadi kesalahan: " + xhr.statusText);
+                    }
+                });
+            });
+        });
+    </script>
 }

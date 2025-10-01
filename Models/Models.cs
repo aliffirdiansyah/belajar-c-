@@ -1,22 +1,34 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Collections.Generic;
+
 namespace hr.Models
 {
     public class Department
     {
         [Column("id")]
         public int Id { get; set; }
+
         [Column("nama_department")]
         public string Nama_Department { get; set; }
+
+        // Relasi: satu department memiliki banyak user
+        public ICollection<User>? Users { get; set; }
     }
+
     public class Jabatan
     {
         [Column("id")]
         public int Id { get; set; }
+
         [Column("nama_jabatan")]
         public string Nama_Jabatan { get; set; }
+
         [Column("gaji_pokok")]
         public double Gaji_Pokok { get; set; }
+
+        // Optional: relasi ke user jika mau
+        public ICollection<User>? Users { get; set; }
     }
 
     public class User
@@ -52,11 +64,11 @@ namespace hr.Models
         [Column("role")]
         public string? Role { get; set; }
 
+        // Navigasi
         [ForeignKey("Id_Jabatan")]
         public Jabatan? Jabatan { get; set; }
 
         [ForeignKey("Id_Department")]
         public Department? Department { get; set; }
     }
-
 }

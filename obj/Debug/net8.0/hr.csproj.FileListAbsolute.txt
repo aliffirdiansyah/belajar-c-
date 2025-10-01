@@ -287,3 +287,4 @@ C:\Users\ASUS\source\repos\hr\hr\obj\Debug\net8.0\refint\hr.dll
 C:\Users\ASUS\source\repos\hr\hr\obj\Debug\net8.0\hr.pdb
 C:\Users\ASUS\source\repos\hr\hr\obj\Debug\net8.0\hr.genruntimeconfig.cache
 C:\Users\ASUS\source\repos\hr\hr\obj\Debug\net8.0\ref\hr.dll
+C:\Users\ASUS\source\repos\hr\hr\obj\Debug\net8.0\hr.sourcelink.json

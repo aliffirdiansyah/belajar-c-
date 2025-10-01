@@ -1,30 +1,31 @@
-@model hr.Models.Jabatan
+@model hr.Models.JabatanVM.Details
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
+<h1>@(Model.Nama_Jabatan) Details</h1>
+<hr />
 
 <div>
-    <h4>Jabatan</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nama_Jabatan)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nama_Jabatan)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Gaji_Pokok)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Gaji_Pokok)
-        </dd>
-    </dl>
+    <div class="row mb-2">
+        <div class="col-sm-3 fw-bold">Nama Jabatan</div>
+        <div class="col-auto">:</div>
+        <div class="col">
+            @Model.Nama_Jabatan
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-sm-3 fw-bold">Gaji Pokok</div>
+        <div class="col-auto">:</div>
+        <div class="col">
+            @Model.Gaji_Pokok.ToString("C0", new System.Globalization.CultureInfo("id-ID"))
+        </div>
+    </div>
+
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+
+<div class="mt-3">
+    <a class="btn btn-warning" asp-action="Edit" asp-route-id="@Model?.Id">Edit</a>
+    <a class="btn btn-danger" asp-action="Index">Kembali</a>
 </div>
